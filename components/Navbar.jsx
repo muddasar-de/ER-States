@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import axios from 'axios';
 import { useRouter } from 'next/router';
 import {
   Menu,
@@ -47,20 +48,49 @@ const Navbar = () => {
     onOpen();
   };
 
-  const handleDummyLogin = () => {
-    const dummyUser = {
-      id: "323651",
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      isAdmin: true,
-      password: '123456',
-    };
-    setUser(dummyUser);
-    localStorage.setItem('user', JSON.stringify(dummyUser));
-    onClose();
-    router.push((user)=> `/profile/${user?.id}`);
-  };
+  const handleDummyLogin = async (email, password ) => {
+  try {
+    // const params = new URLSearchParams();
+    // params.append('email', email);
+    // params.append('password', password);
 
+     const response = await axios.post(
+      'https://xplodev.com/webproj/login_user.php',
+      {
+        email: 'ali@example.com',
+        password: '123456'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          "Accept": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        }
+      }
+    );
+    console.log(response);
+    const data = await response.json();
+      if (data && data.success) {
+        // Adjust according to your API's response structure
+        const userData = {
+          id: data.id || "323651",
+          name: data.name || 'John Doe',
+          email: data.email || email,
+          isAdmin: data.isAdmin || true,
+        };
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        onClose();
+        router.push(`/profile/${userData.id}`);
+      } else {
+        alert(data.message || 'Login failed');
+      }
+    } catch (error) {
+      alert('Login error');
+    }
+  };
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('user');
@@ -158,7 +188,10 @@ const Navbar = () => {
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  handleDummyLogin();
+                  e.preventDefault();
+                  const email = e.target[0].value;
+                  const password = e.target[1].value;
+                  handleDummyLogin(email, password);
                 }}
               >
                 <FormControl mb={3}>
