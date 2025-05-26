@@ -57,8 +57,8 @@ const Navbar = () => {
      const response = await axios.post(
       'https://xplodev.com/webproj/login_user.php',
       {
-        email: 'ali@example.com',
-        password: '123456'
+        email,
+        password
       },
       {
         headers: {
