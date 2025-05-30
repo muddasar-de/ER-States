@@ -54,7 +54,7 @@ const Profile = () => {
   });
     useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    console.log("Stored User", storedUser);
+    const user = JSON.parse(storedUser);
      fetchData()
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -149,8 +149,8 @@ console.log("Properties", properties);
           Upload Property
         </Button>
       )}
-    {user?.isAdmin && (
 
+      {/* Responsive Table */}
       <Box overflowX="auto" mb={6}>
         <Table variant="striped" size={useBreakpointValue({ base: "sm", md: "md" })}>
           <Thead>
@@ -199,7 +199,7 @@ console.log("Properties", properties);
           </Tbody>
         </Table>
       </Box>
-      )}
+
 
       <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
         <ModalOverlay />
