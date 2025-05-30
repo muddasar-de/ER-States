@@ -8,19 +8,21 @@ import { useRef, useState } from 'react';
 import emailjs from '@emailjs/browser'; // <-- Import EmailJS
 import { useRouter } from 'next/router';
 
-import { baseUrl, fetchApi } from '../../utils/fetchApi';
+import { baseUrl, fetchApi,fetchApiByID } from '../../utils/fetchProperties';
 import ImageScrollbar from '../../components/ImageScrollbar';
 
 const PropertyDetails = ({
   propertyDetails: {
     price, rentFrequency, rooms, title, baths, area, agency, isVerified, description, type, purpose, furnishingStatus, amenities, photos
   }
+  
 }) => {
   // EmailJS form logic
   const formRef = useRef();
   const [emailStatus, setEmailStatus] = useState('');
   const router = useRouter();
   const propertyId = router.query.id;
+
   const sendEmail = (e) => {
     e.preventDefault();
     emailjs.sendForm(
@@ -43,13 +45,13 @@ const PropertyDetails = ({
         <Flex paddingTop='2' alignItems='center'>
           <Box paddingRight='3' color='green.400'>{isVerified && <GoVerified />}</Box>
           <Text fontWeight='bold' fontSize='lg'>
-            AED {price} {rentFrequency && `/${rentFrequency}`}
+            AUD {price} {rentFrequency && ` / ${rentFrequency}`}
           </Text>
           <Spacer />
           <Avatar size='sm' src={agency?.logo?.url}></Avatar>
         </Flex>
         <Flex alignItems='center' p='1' justifyContent='space-between' w='250px' color='blue.400'>
-          {rooms}<FaBed /> | {baths} <FaBath /> | {millify(area)} sqft <BsGridFill />
+          {rooms}<FaBed /> | {baths} <FaBath /> | {area} sqft <BsGridFill />
         </Flex>
       </Box>
       <Flex marginTop='2' gap={8} alignItems="flex-start">
@@ -149,12 +151,11 @@ const PropertyDetails = ({
       <Box>
         {amenities.length && <Text fontSize='2xl' fontWeight='black' marginTop='5'>Facilites:</Text>}
         <Flex flexWrap='wrap'>
-          {amenities?.map((item) => (
-            item?.amenities?.map((amenity) => (
-              <Text key={amenity.text} fontWeight='bold' color='blue.400' fontSize='l' p='2' bg='gray.200' m='1' borderRadius='5'>
-                {amenity.text}
+          {amenities?.map((amenity) => (
+              <Text key={amenity.name} fontWeight='bold' color='blue.400' fontSize='l' p='2' bg='gray.200' m='1' borderRadius='5'>
+                {amenity.name}
               </Text>
-            ))
+            
           ))}
         </Flex>
       </Box>
@@ -167,11 +168,13 @@ export default PropertyDetails;
 // ...existing getServerSideProps...
 
 export async function getServerSideProps({ params: { id } }) {
-  const data = await fetchApi(`${baseUrl}/properties/detail?externalID=${id}`);
+  const data = await fetchApiByID(id);
+// console.log("data", data);
+  // const data = await fetchApi(`${baseUrl}/properties/detail?externalID=${id}`);
 
   return {
     props: {
-      propertyDetails: data,
+      propertyDetails: data?.data,
     },
   };
 }

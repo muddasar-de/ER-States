@@ -29,18 +29,13 @@ import {
   useBreakpointValue,
 } from '@chakra-ui/react';
 // import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
-import { FcMenu, FcHome, FcAbout, FcPortraitMode } from 'react-icons/fc';
-// import { baseUrl, fetchApi } from '../utils/fetchApi';
+import { FaEdit } from 'react-icons/fa';
+import { MdDelete } from "react-icons/md";
 
+// import { baseUrl, fetchApi } from '../utils/fetchApi';
+import { fetchApiForSale, fetchApiForRent } from '../../utils/fetchProperties';
 const Profile = () => {
   const [user, setUser] = useState(null);
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editingIndex, setEditingIndex] = useState(null);
   const [properties, setProperties] = useState([]);
@@ -48,29 +43,55 @@ const Profile = () => {
     coverPhoto: '',
     galleryPhotos: [],
     price: '',
-    rentFrequency: '',
+    // rentFrequency: '',
     rooms: '',
     title: '',
     baths: '',
     area: '',
     agency: '',
-    isVerified: false,
-    externalID: '',
+    // isVerified: false,
+    // externalID: '',
   });
 
+    useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    console.log("Stored User", storedUser);
+     fetchData()
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      if(storedUser?.isAdmin) {
+        fetchData()
+    }
+    
+    }
+  }, []);
+
+
+  const fetchData = async () => {
+    try { 
+       const propertyForSale = await fetchApiForSale();
+        const propertyForRent = await fetchApiForRent();
+        console.log('Fetched properties for sale:', propertyForSale?.data);
+      setProperties(()=>[...propertyForSale?.data, ...propertyForRent?.data]);
+      console.log('Fetched properties:', propertyForSale?.data, propertyForRent?.data);
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+    }
+  };
+console.log("Properties", properties);
   const resetForm = () => {
     setForm({
       coverPhoto: '',
       galleryPhotos: [],
       price: '',
-      rentFrequency: '',
+      // rentFrequency: '',
       rooms: '',
       title: '',
       baths: '',
       area: '',
-      agency: '',
-      isVerified: false,
-      externalID: '',
+      // agency: '',
+      // isVerified: false,
+      // externalID: '',
     });
     setEditingIndex(null);
   };
@@ -122,7 +143,7 @@ const Profile = () => {
       <Box mb="6" p="4" borderWidth="1px" borderRadius="md" boxShadow="sm">
         <Text fontWeight="bold" fontSize="xl" mb="2">{user?.name}</Text>
         <Text>Email: {user?.email}</Text>
-        <Text>Role: {user?.role}</Text>
+        {/* <Text>Role: {user?.role}</Text> */}
       </Box>
 
       {user?.isAdmin && (
@@ -141,7 +162,7 @@ const Profile = () => {
               <Th>Rooms</Th>
               <Th>Baths</Th>
               <Th>Area</Th>
-              <Th>Agency</Th>
+              {/* <Th>Agency</Th> */}
               <Th>Verified</Th>
               <Th>Actions</Th>
             </Tr>
@@ -154,19 +175,21 @@ const Profile = () => {
                 <Td>{property.rooms}</Td>
                 <Td>{property.baths}</Td>
                 <Td>{property.area}</Td>
-                <Td>{property.agency}</Td>
+                {/* <Td>{property.agency}</Td> */}
                 <Td>{property.isVerified ? 'Yes' : 'No'}</Td>
                 <Td>
                   <IconButton
-                    icon={<FcPortraitMode />}
+                    icon={<FaEdit />}
                     mr={2}
                     onClick={() => handleEdit(index)}
                     size="sm"
                     colorScheme="teal"
                     aria-label="Edit"
                   />
+                 
+                  
                   <IconButton
-                    icon={<FcPortraitMode />}
+                    icon={<MdDelete  />}
                     onClick={() => handleDelete(index)}
                     size="sm"
                     colorScheme="red"
@@ -224,7 +247,7 @@ const Profile = () => {
                     <NumberInputField name="area" placeholder="Area in square feet" />
                   </NumberInput>
                 </FormControl>
-                <FormControl isRequired>
+                {/* <FormControl isRequired>
                   <FormLabel>Agency</FormLabel>
                   <Input name="agency" value={form.agency} onChange={handleChange} placeholder="Agency name" />
                 </FormControl>
@@ -234,7 +257,9 @@ const Profile = () => {
                 <FormControl isRequired>
                   <FormLabel>External ID</FormLabel>
                   <Input name="externalID" value={form.externalID} onChange={handleChange} placeholder="External property ID" />
-                </FormControl>
+                </FormControl> */}
+                
+                {editingIndex == null && (
                 <FormControl >
 
                   <FormLabel>Cover Photo</FormLabel>
@@ -261,7 +286,8 @@ const Profile = () => {
                       <img src={form.coverPhoto} alt="Cover Preview" style={{ maxWidth: '100%', maxHeight: 150 }} />
                     </Box>
                   )}
-                </FormControl>
+                </FormControl>  )}
+                {editingIndex == null && (
                 <FormControl>
                   <FormLabel>Gallery Photos</FormLabel>
                   <Input
@@ -301,6 +327,7 @@ const Profile = () => {
                     </Box>
                   )}
                 </FormControl>
+                )}
               </VStack>
             </form>
           </ModalBody>

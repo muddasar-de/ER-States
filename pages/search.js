@@ -6,13 +6,15 @@ import { BsFilter } from 'react-icons/bs';
 
 import Property from '../components/Property';
 import SearchFilters from '../components/SearchFilters';
-import { baseUrl, fetchApi } from '../utils/fetchApi';
+// import { baseUrl, fetchApifor } from '../utils/fetchApi';
+import { baseUrl, fetchApiForSale,fetchApiForRent ,fetchFilteredData} from '../utils/fetchProperties';
+
 import noresult from '../assets/images/noresult.svg'
 
 const Search = ({ properties }) => {
   const [searchFilters, setSearchFilters] = useState(false);
   const router = useRouter();
-
+console.log("searchFilters", searchFilters);
   return (
     <Box>
       <Flex
@@ -32,14 +34,14 @@ const Search = ({ properties }) => {
       </Flex>
       {searchFilters && <SearchFilters />}
       <Text fontSize='2xl' p='4' fontWeight='bold'>
-        Properties {router.query.purpose}
+        Properties 
       </Text>
       <Flex flexWrap='wrap'>
         {properties.map((property) => <Property property={property} key={property.id} />)}
       </Flex>
       {properties.length === 0 && (
         <Flex justifyContent='center' alignItems='center' flexDir='column' marginTop='5' marginBottom='5'>
-          <Image src={noresult} />
+          <Image src={noresult} fill={true} width={400} height={260}/> 
           <Text fontSize='xl' marginTop='3'>No Result Found.</Text>
         </Flex>
       )}
@@ -49,21 +51,24 @@ const Search = ({ properties }) => {
 
 export async function getServerSideProps({ query }) {
   const purpose = query.purpose || 'for-rent';
-  const rentFrequency = query.rentFrequency || 'yearly';
+  // const rentFrequency = query.rentFrequency || 'yearly';
   const minPrice = query.minPrice || '0';
   const maxPrice = query.maxPrice || '1000000';
   const roomsMin = query.roomsMin || '0';
   const bathsMin = query.bathsMin || '0';
-  const sort = query.sort || 'price-desc';
-  const areaMax = query.areaMax || '35000';
-  const locationExternalIDs = query.locationExternalIDs || '5002';
-  const categoryExternalID = query.categoryExternalID || '4';
+  const sort = query.sort || 'lowest_price';
+  const areaMin = query.areaMax || '0';
+  const furnish_status = query.furnishingStatus || 'Furnished';
+  console.log("query", query.furnishingStatus);
+  // const locationExternalIDs = query.locationExternalIDs || '5002';
+  // const categoryExternalID = query.categoryExternalID || '4';
 
-  const data = await fetchApi(`${baseUrl}/properties/list?locationExternalIDs=${locationExternalIDs}&purpose=${purpose}&categoryExternalID=${categoryExternalID}&bathsMin=${bathsMin}&rentFrequency=${rentFrequency}&priceMin=${minPrice}&priceMax=${maxPrice}&roomsMin=${roomsMin}&sort=${sort}&areaMax=${areaMax}`);
-
+  // const data = await fetchApi(`${baseUrl}/properties/list?locationExternalIDs=${locationExternalIDs}&purpose=${purpose}&categoryExternalID=${categoryExternalID}&bathsMin=${bathsMin}&rentFrequency=${rentFrequency}&priceMin=${minPrice}&priceMax=${maxPrice}&roomsMin=${roomsMin}&sort=${sort}&areaMax=${areaMax}`);
+// const data = purpose === 'for-rent' ? await fetchApiForRent() : await fetchApiForSale();
+  const data = await fetchFilteredData(`https://xplodev.com/webproj/FilteredProperties.php?purpose=${purpose}&min_price=${minPrice}&max_price=${maxPrice}&sort=${sort}&min_area=${areaMin}&bedrooms=${roomsMin}&washrooms=${bathsMin}`);
   return {
     props: {
-      properties: data?.hits,
+      properties: data?.data,
     },
   };
 }

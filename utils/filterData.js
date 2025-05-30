@@ -1,22 +1,22 @@
 export const filterData = [
   {
     items: [
-      { name: 'Buy', value: 'for-sale' },
-      { name: 'Rent', value: 'for-rent' },
+      { name: 'Buy', value: 'Buy' },
+      { name: 'Rent', value: 'Rent' },
     ],
     placeholder: 'Purpose',
     queryName: 'purpose',
   },
-  {
-    items: [
-      { name: 'Daily', value: 'daily' },
-      { name: 'Weekly', value: 'weekly' },
-      { name: 'Monthly', value: 'monthly' },
-      { name: 'Yearly', value: 'yearly' },
-    ],
-    placeholder: 'Rent Frequency',
-    queryName: 'rentFrequency',
-  },
+  // {
+  //   items: [
+  //     { name: 'Daily', value: 'daily' },
+  //     { name: 'Weekly', value: 'weekly' },
+  //     { name: 'Monthly', value: 'monthly' },
+  //     { name: 'Yearly', value: 'yearly' },
+  //   ],
+  //   placeholder: 'Rent Frequency',
+  //   queryName: 'rentFrequency',
+  // },
   {
     items: [
       { name: '10,000', value: '10000' },
@@ -27,7 +27,7 @@ export const filterData = [
       { name: '60,000', value: '60000' },
       { name: '85,000', value: '85000' },
     ],
-    placeholder: 'Min Price(AED)',
+    placeholder: 'Min Price(AUD)',
     queryName: 'minPrice',
   },
   {
@@ -49,17 +49,17 @@ export const filterData = [
       { name: '900,000', value: '900000' },
       { name: '1000,000', value: '1000000' },
     ],
-    placeholder: 'Max Price(AED)',
+    placeholder: 'Max Price(AUD)',
     queryName: 'maxPrice',
   },
   {
     items: [
-      { name: 'Lowest Price', value: 'price-asc' },
-      { name: 'Highest Price', value: 'price-des' },
-      { name: 'Newest', value: 'date-asc' },
-      { name: 'Oldest', value: 'date-desc' },
-      { name: 'Verified', value: 'verified-score' },
-      { name: 'City Level Score', value: 'city-level-score' },
+      { name: 'Lowest Price', value: 'lowest_price' },
+      { name: 'Highest Price', value: 'highest_price' },
+      { name: 'Newest', value: 'newest' },
+      { name: 'Oldest', value: 'oldest' },
+      // { name: 'Verified', value: 'verified-score' },
+      // { name: 'City Level Score', value: 'city-level-score' },
     ],
     placeholder: 'Sort',
     queryName: 'sort',
@@ -109,29 +109,29 @@ export const filterData = [
     placeholder: 'Baths',
     queryName: 'bathsMin',
   },
-  {
-    items: [
-      { name: 'Furnished', value: 'furnished' },
-      { name: 'Unfurnished', value: 'unfurnished' },
-    ],
-    placeholder: 'Furnish Type',
-    queryName: 'furnishingStatus',
-  },
-  {
-    items: [
-      { name: 'Apartment', value: '4' },
-      { name: 'Townhouses', value: '16' },
-      { name: 'Villas', value: '3' },
-      { name: 'Penthouses', value: '18' },
-      { name: 'Hotel Apartments', value: '21' },
-      { name: 'Villa Compound', value: '19' },
-      { name: 'Residential Plot', value: '14' },
-      { name: 'Residential Floor', value: '12' },
-      { name: 'Residential Building', value: '17' },
-    ],
-    placeholder: 'Property Type',
-    queryName: 'categoryExternalID',
-  },
+  // {
+  //   items: [
+  //     { name: 'Furnished', value: 'Furnished' },
+  //     { name: 'Unfurnished', value: 'Unfurnished' },
+  //   ],
+  //   placeholder: 'Furnish Type',
+  //   queryName: 'furnishingStatus',
+  // },
+  // {
+  //   items: [
+  //     { name: 'Apartment', value: '4' },
+  //     { name: 'Townhouses', value: '16' },
+  //     { name: 'Villas', value: '3' },
+  //     { name: 'Penthouses', value: '18' },
+  //     { name: 'Hotel Apartments', value: '21' },
+  //     { name: 'Villa Compound', value: '19' },
+  //     { name: 'Residential Plot', value: '14' },
+  //     { name: 'Residential Floor', value: '12' },
+  //     { name: 'Residential Building', value: '17' },
+  //   ],
+  //   placeholder: 'Property Type',
+  //   queryName: 'categoryExternalID',
+  // },
 ];
 
 export const getFilterValues = (filterValues) => {

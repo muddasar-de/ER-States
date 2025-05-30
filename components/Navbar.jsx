@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { fetchApiForRent } from '../utils/fetchProperties';
 import {
   Menu,
   MenuButton,
@@ -30,6 +31,7 @@ import { FcMenu, FcHome, FcAbout, FcPortraitMode } from 'react-icons/fc';
 import { BsSearch } from 'react-icons/bs';
 import { FiKey } from 'react-icons/fi';
 
+import { userLoginAPI, userRegisterAPI } from '../utils/userRegistration';
 const Navbar = () => {
   const router = useRouter();
   const [user, setUser] = useState(null);
@@ -37,7 +39,10 @@ const Navbar = () => {
   const [authMode, setAuthMode] = useState('signin');
 
   // Load user from localStorage on component mount
-  useEffect(() => {
+  useEffect(async() => {
+    await fetchApiForRent()
+      .then((data) => console.log(data))
+      .catch((error) => console.error('Error fetching properties:', error));
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -48,49 +53,92 @@ const Navbar = () => {
     onOpen();
   };
 
-  const handleDummyLogin = async (email, password ) => {
+const userLogin = async (email, password) => {
   try {
-    // const params = new URLSearchParams();
-    // params.append('email', email);
-    // params.append('password', password);
-
-     const response = await axios.post(
-      'https://xplodev.com/webproj/login_user.php',
-      {
-        email,
-        password
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        }
-      }
-    );
-    console.log(response);
-    const data = await response.json();
-      if (data && data.success) {
-        // Adjust according to your API's response structure
-        const userData = {
-          id: data.id || "323651",
-          name: data.name || 'John Doe',
-          email: data.email || email,
-          isAdmin: data.isAdmin || true,
-        };
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        onClose();
-        router.push(`/profile/${userData.id}`);
-      } else {
-        alert(data.message || 'Login failed');
-      }
-    } catch (error) {
-      alert('Login error');
+    const response = await userLoginAPI(email, password);
+    
+    
+    const data = response;
+    
+    // Check for success (your PHP returns 'status' not 'success')
+    if (data && data.status === true) {
+      const userData = {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        isAdmin: data.isAdmin || false,
+      };
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      onClose();
+      router.push(`/profile/${userData.id}`);
+    } else {
+      // Show the actual error message from PHP
+      alert(data.message || 'Login failed');
+      console.log('Login failed:', data.message);
     }
-  };
+  } catch (error) {
+    console.log('Login error details:', error);
+    console.log('Error response:', error.response?.data);
+    
+    // Better error message handling
+    let errorMessage = 'An error occurred during login';
+    
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.response?.status) {
+      errorMessage = `Server error: ${error.response.status}`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    alert(errorMessage);
+  }
+};
+
+const userRegister=async (name, email, password) => {
+  console.log('Registering user:', { name, email, password });
+  try {
+    const response = await userRegisterAPI(name, email, password);
+    
+    const data = response;
+    
+    // Check for success (your PHP returns 'status' not 'success')
+    if (data && data.status === true) {
+      const userData = {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        isAdmin: data.isAdmin || false,
+      };
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      onClose();
+userLogin(email, password)
+      // router.push(`/profile/${userData.id}`);
+    } else {
+      // Show the actual error message from PHP
+      alert(data.message || 'Registration failed');
+      console.log('Registration failed:', data.message);
+    }
+  } catch (error) {
+    console.log('Registration error details:', error);
+    console.log('Error response:', error.response?.data);
+    
+    // Better error message handling
+    let errorMessage = 'An error occurred during registration';
+    
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.response?.status) {
+      errorMessage = `Server error: ${error.response.status}`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    alert(errorMessage);
+  }
+}
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('user');
@@ -191,7 +239,7 @@ const Navbar = () => {
                   e.preventDefault();
                   const email = e.target[0].value;
                   const password = e.target[1].value;
-                  handleDummyLogin(email, password);
+                  userLogin(email, password);
                 }}
               >
                 <FormControl mb={3}>
@@ -210,7 +258,10 @@ const Navbar = () => {
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  handleDummyLogin();
+                  const name = e.target[0].value;
+                   const email = e.target[1].value;
+                  const password = e.target[2].value;
+                  userRegister(name,email, password);
                 }}
               >
                 <FormControl mb={3}>
