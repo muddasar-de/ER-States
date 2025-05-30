@@ -10,7 +10,6 @@ export const fetchApiForSale = async () => {
     },
  
   });
-    console.log("fetchApi data", data);
   return data;
 }
 export const fetchApiForRent = async () => {

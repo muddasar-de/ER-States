@@ -102,7 +102,6 @@ const userRegister=async (name, email, password) => {
     const response = await userRegisterAPI(name, email, password);
     
     const data = response;
-    
     // Check for success (your PHP returns 'status' not 'success')
     if (data && data.status === true) {
       const userData = {
@@ -112,6 +111,7 @@ const userRegister=async (name, email, password) => {
         isAdmin: data.isAdmin || false,
       };
       setUser(userData);
+      console.log('User registered successfully:', userData);
       localStorage.setItem('user', JSON.stringify(userData));
       onClose();
 userLogin(email, password)
@@ -176,10 +176,10 @@ userLogin(email, password)
               <Link href="/search" passHref>
                 <MenuItem icon={<BsSearch />}>Search</MenuItem>
               </Link>
-              <Link href="/search?purpose=for-sale" passHref>
+              <Link href="/search?purpose=Buy" passHref>
                 <MenuItem icon={<FcAbout />}>Buy Property</MenuItem>
               </Link>
-              <Link href="/search?purpose=for-rent" passHref>
+              <Link href="/search?purpose=Rent" passHref>
                 <MenuItem icon={<FiKey />}>Rent Property</MenuItem>
               </Link>
 
