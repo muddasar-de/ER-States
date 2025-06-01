@@ -14,6 +14,7 @@
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
     "axios": "^0.23.0",
+    "cloudinary": "^2.6.1",
     "framer-motion": "^4.1.17",
     "millify": "^4.0.0",
     "next": "11.1.2",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
+    "cross-env": "^7.0.3",
     "eslint": "7.32.0",
     "eslint-config-next": "11.1.2"
   }

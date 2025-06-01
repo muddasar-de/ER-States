@@ -31,6 +31,7 @@ import {
 // import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { FaEdit } from 'react-icons/fa';
 import { MdDelete } from "react-icons/md";
+import UploadDropzone from './imgUpload/uploadToCloudinary';
 
 // import { baseUrl, fetchApi } from '../utils/fetchApi';
 import { fetchApiForSale, fetchApiForRent } from '../../utils/fetchProperties';
@@ -52,31 +53,31 @@ const Profile = () => {
     // isVerified: false,
     // externalID: '',
   });
-    useEffect(() => {
+  useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const user = JSON.parse(storedUser);
-     fetchData()
+    fetchData()
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-      if(storedUser?.isAdmin) {
+      if (storedUser?.isAdmin) {
         fetchData()
-    }
-    
+      }
+
     }
   }, []);
 
   const fetchData = async () => {
-    try { 
-       const propertyForSale = await fetchApiForSale();
-        const propertyForRent = await fetchApiForRent();
-        console.log('Fetched properties for sale:', propertyForSale?.data);
-      setProperties(()=>[...propertyForSale?.data, ...propertyForRent?.data]);
+    try {
+      const propertyForSale = await fetchApiForSale();
+      const propertyForRent = await fetchApiForRent();
+      console.log('Fetched properties for sale:', propertyForSale?.data);
+      setProperties(() => [...propertyForSale?.data, ...propertyForRent?.data]);
       console.log('Fetched properties:', propertyForSale?.data, propertyForRent?.data);
     } catch (error) {
       console.error('Error fetching properties:', error);
     }
   };
-console.log("Properties", properties);
+  console.log("Properties", properties);
   const resetForm = () => {
     setForm({
       coverPhoto: '',
@@ -184,10 +185,10 @@ console.log("Properties", properties);
                     colorScheme="teal"
                     aria-label="Edit"
                   />
-                 
-                  
+
+
                   <IconButton
-                    icon={<MdDelete  />}
+                    icon={<MdDelete />}
                     onClick={() => handleDelete(index)}
                     size="sm"
                     colorScheme="red"
@@ -232,7 +233,7 @@ console.log("Properties", properties);
                     <NumberInputField name="rooms" placeholder="Number of rooms" />
                   </NumberInput>
                 </FormControl>
-               
+
                 <FormControl isRequired>
                   <FormLabel>Baths</FormLabel>
                   <NumberInput min={0} value={form.baths} onChange={(value) => handleNumberChange('baths', value)}>
@@ -247,6 +248,7 @@ console.log("Properties", properties);
                 </FormControl>
                 {/* <FormControl isRequired>
                   <FormLabel>Agency</FormLabel>
+
                   <Input name="agency" value={form.agency} onChange={handleChange} placeholder="Agency name" />
                 </FormControl>
                 <FormControl>
@@ -256,75 +258,66 @@ console.log("Properties", properties);
                   <FormLabel>External ID</FormLabel>
                   <Input name="externalID" value={form.externalID} onChange={handleChange} placeholder="External property ID" />
                 </FormControl> */}
-                
-                {editingIndex == null && (
-                <FormControl >
 
-                  <FormLabel>Cover Photo</FormLabel>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={e => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setForm(prev => ({
-                            ...prev,
-                            coverPhoto: reader.result, // base64 string
-                          }));
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                      // If no file is selected, do NOT clear coverPhoto!
-                    }}
-                  />
-                  {form.coverPhoto && (
-                    <Box mt={2}>
-                      <img src={form.coverPhoto} alt="Cover Preview" style={{ maxWidth: '100%', maxHeight: 150 }} />
-                    </Box>
-                  )}
-                </FormControl>  )}
                 {editingIndex == null && (
-                <FormControl>
-                  <FormLabel>Gallery Photos</FormLabel>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={e => {
-                      const files = Array.from(e.target.files);
-                      if (files.length > 0) {
-                        Promise.all(
-                          files.map(file => {
-                            return new Promise(resolve => {
-                              const reader = new FileReader();
-                              reader.onloadend = () => resolve(reader.result);
-                              reader.readAsDataURL(file);
-                            });
-                          })
-                        ).then(images => {
+                  <FormControl>
+                    <FormLabel>Cover Photo</FormLabel>
+                    <UploadDropzone
+                      onUploadComplete={(urls) => {
+                        if (urls && urls.length > 0) {
+                          console.log("Cover photo URL:", urls[0]);
                           setForm(prev => ({
                             ...prev,
-                            galleryPhotos: images, // array of base64 strings
+                            coverPhoto: urls[0]
                           }));
-                        });
-                      }
-                    }}
-                  />
-                  {form.galleryPhotos && form.galleryPhotos.length > 0 && (
-                    <Box mt={2} display="flex" flexWrap="wrap" gap={2}>
-                      {form.galleryPhotos.map((img, idx) => (
+                        }
+                      }}
+                      multiple={false}
+                    />
+                    {form.coverPhoto && (
+                      <Box mt={2}>
                         <img
-                          key={idx}
-                          src={img}
-                          alt={`Gallery Preview ${idx + 1}`}
-                          style={{ maxWidth: 100, maxHeight: 100, objectFit: 'cover', borderRadius: 4 }}
+                          src={form.coverPhoto}
+                          alt="Cover Preview"
+                          style={{ maxWidth: '100%', maxHeight: 150 }}
+                          onError={(e) => {
+                            console.error("Failed to load image:", form.coverPhoto);
+                            e.target.src = "https://via.placeholder.com/150?text=Error";
+                          }}
                         />
-                      ))}
-                    </Box>
-                  )}
-                </FormControl>
+                      </Box>
+                    )}
+                  </FormControl>)}
+                {editingIndex == null && (
+                  <FormControl>
+                    <FormLabel>Gallery Photos</FormLabel>
+                    <UploadDropzone
+                      onUploadComplete={(urls) => {
+                        if (urls && urls.length > 0) {
+                          console.log("Gallery photo URLs:", urls);
+                          setForm(prev => ({
+                            ...prev,
+                            galleryPhotos: [...(prev.galleryPhotos || []), ...urls]
+                          }));
+                        }
+                      }}
+                      multiple={true}
+                      endpoint="propertyGallery"
+                    />
+                    {form.galleryPhotos && form.galleryPhotos.length > 0 && (
+                      <Box mt={2} display="flex" flexWrap="wrap" gap={2}>
+                        {form.galleryPhotos.map((img, idx) => (
+                          <img
+                            key={idx}
+                            src={img}
+                            alt={`Gallery Preview ${idx + 1}`}
+                            style={{ maxWidth: 100, maxHeight: 100, objectFit: 'cover' }}
+                          />
+                        ))}
+                      </Box>
+                    )}
+                  </FormControl>
+
                 )}
               </VStack>
             </form>
