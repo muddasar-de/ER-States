@@ -22,7 +22,6 @@ const PropertyDetails = ({
   const [emailStatus, setEmailStatus] = useState('');
   const router = useRouter();
   const propertyId = router.query.id;
-
   const sendEmail = (e) => {
     e.preventDefault();
     emailjs.sendForm(
@@ -45,7 +44,7 @@ const PropertyDetails = ({
         <Flex paddingTop='2' alignItems='center'>
           <Box paddingRight='3' color='green.400'>{isVerified && <GoVerified />}</Box>
           <Text fontWeight='bold' fontSize='lg'>
-            AUD {price} {rentFrequency && ` / ${rentFrequency}`}
+            AUD {price}
           </Text>
           <Spacer />
           <Avatar size='sm' src={agency?.logo?.url}></Avatar>
@@ -169,7 +168,7 @@ export default PropertyDetails;
 
 export async function getServerSideProps({ params: { id } }) {
   const data = await fetchApiByID(id);
-
+console.log("data",data.data);
   return {
     props: {
       propertyDetails: data?.data,

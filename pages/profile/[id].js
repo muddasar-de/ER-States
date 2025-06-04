@@ -27,30 +27,36 @@ import {
   Td,
   IconButton,
   useBreakpointValue,
+  Select,
 } from '@chakra-ui/react';
+import { v4 as uuidv4 } from 'uuid'; // Corrected import
+
 // import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { FaEdit } from 'react-icons/fa';
 import { MdDelete } from "react-icons/md";
 import UploadDropzone from './imgUpload/uploadToCloudinary';
-
+import { insertProperty,insertGallery } from '../../utils/insertProperty';
 // import { baseUrl, fetchApi } from '../utils/fetchApi';
 import { fetchApiForSale, fetchApiForRent } from '../../utils/fetchProperties';
+import { deleteProperty } from '../../utils/deleteProperty';
 const Profile = () => {
   const [user, setUser] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editingIndex, setEditingIndex] = useState(null);
   const [properties, setProperties] = useState([]);
   const [form, setForm] = useState({
-    coverPhoto: '',
+    // coverPhoto: '',
     galleryPhotos: [],
     price: '',
+    description: '',
+    purpose: '', // Default purpose
     // rentFrequency: '',
     rooms: '',
     title: '',
     baths: '',
     area: '',
     agency: '',
-    // isVerified: false,
+    isVerified: false,
     // externalID: '',
   });
   useEffect(() => {
@@ -80,16 +86,20 @@ const Profile = () => {
   console.log("Properties", properties);
   const resetForm = () => {
     setForm({
-      coverPhoto: '',
-      galleryPhotos: [],
-      price: '',
-      // rentFrequency: '',
-      rooms: '',
-      title: '',
+       title: '',
+      description : '',
+
       baths: '',
       area: '',
+      rooms: '',
+      price: '',
+    purpose: '',
+      // coverPhoto: '',
+      galleryPhotos: [],
+      // rentFrequency: '',
+     
       // agency: '',
-      // isVerified: false,
+      isVerified: true,
       // externalID: '',
     });
     setEditingIndex(null);
@@ -110,15 +120,29 @@ const Profile = () => {
     }));
   };
 
+
+
   const handleSubmit = (e) => {
+  const postId = generateFourDigitNumber();
+
     e.preventDefault();
-    if (editingIndex !== null) {
+    // if (editingIndex !== null) {
       const updatedProperties = [...properties];
       updatedProperties[editingIndex] = form;
+      alert("Property updated successfully");
+      insertProperty({postId, ...form}).then((data) => {
+        insertGallery(postId, form.galleryPhotos).then((galleryResponse) => {
+          if (galleryResponse) {  console.log("Gallery images inserted successfully");
+          } else {  console.error("Failed to insert gallery images");}
+        }).catch((galleryError) => {  console.error("Error inserting gallery images:", galleryError);});
+        console.log("Property inserted:", data)
+      }).catch((error) => {
+        console.error("Error inserting property:", error);})
       setProperties(updatedProperties);
-    } else {
-      setProperties([...properties, form]);
-    }
+    // } else {
+    //   setProperties([...properties, form]);
+    // }
+    console.log("Form submitted:", form);
     resetForm();
     onClose();
   };
@@ -130,11 +154,18 @@ const Profile = () => {
   };
 
   const handleDelete = (index) => {
+    console.log("Deleting property at index:", index);
+    console.log("Current properties before deletion:", properties[index].id);
+    deleteProperty(properties[index].id).then((response) => {
+      console.log("Delete response:", response);}).catch((error) => {
+      console.error("Error deleting property:", error);});
     const updated = properties.filter((_, i) => i !== index);
     setProperties(updated);
   };
 
-
+function generateFourDigitNumber() {
+  return Math.floor(Math.random() * 9000) + 1000;
+}
   return (
     <Box p="6" maxWidth="1000px" mx="auto">
       <Heading mb="6">Profile</Heading>
@@ -162,7 +193,7 @@ const Profile = () => {
               <Th>Baths</Th>
               <Th>Area</Th>
               {/* <Th>Agency</Th> */}
-              <Th>Verified</Th>
+              {/* <Th>Verified</Th> */}
               <Th>Actions</Th>
             </Tr>
           </Thead>
@@ -175,7 +206,7 @@ const Profile = () => {
                 <Td>{property.baths}</Td>
                 <Td>{property.area}</Td>
                 {/* <Td>{property.agency}</Td> */}
-                <Td>{property.isVerified ? 'Yes' : 'No'}</Td>
+                {/* <Td>{property.isVerified ? 'Yes' : 'No'}</Td> */}
                 <Td>
                   <IconButton
                     icon={<FaEdit />}
@@ -215,7 +246,17 @@ const Profile = () => {
                   <FormLabel>Title</FormLabel>
                   <Input name="title" value={form.title} onChange={handleChange} placeholder="Property title" />
                 </FormControl>
-
+       <FormControl isRequired>
+                  <FormLabel>Description</FormLabel>
+                  <Input name="description" value={form.description} onChange={handleChange} placeholder="Property description" />
+                </FormControl>
+ <Box maxW="sm" mx="auto" mt={10}>
+  <FormLabel>Purpose</FormLabel>
+      <Select placeholder="Select option" onChange={handleChange} value={form.purpose}  name="purpose" isRequired>
+        <option value="For Sale">Buy</option>
+        <option value="For Rent">Rent</option>
+      </Select>
+    </Box>
 
                 <FormControl isRequired>
                   <FormLabel>Price</FormLabel>
@@ -223,16 +264,17 @@ const Profile = () => {
                     <NumberInputField name="price" placeholder="Enter price" />
                   </NumberInput>
                 </FormControl>
-                <FormControl isRequired>
+                {/* <FormControl isRequired>
                   <FormLabel>Rent Frequency</FormLabel>
                   <Input name="rentFrequency" value={form.rentFrequency} onChange={handleChange} placeholder="e.g., monthly, yearly" />
-                </FormControl>
+                </FormControl> */}
                 <FormControl isRequired>
                   <FormLabel>Rooms</FormLabel>
                   <NumberInput min={0} value={form.rooms} onChange={(value) => handleNumberChange('rooms', value)}>
                     <NumberInputField name="rooms" placeholder="Number of rooms" />
                   </NumberInput>
                 </FormControl>
+
 
                 <FormControl isRequired>
                   <FormLabel>Baths</FormLabel>
@@ -250,16 +292,16 @@ const Profile = () => {
                   <FormLabel>Agency</FormLabel>
 
                   <Input name="agency" value={form.agency} onChange={handleChange} placeholder="Agency name" />
-                </FormControl>
-                <FormControl>
+                </FormControl>*/}
+                 <FormControl>
                   <Checkbox name="isVerified" isChecked={form.isVerified} onChange={handleChange}>Verified Property</Checkbox>
-                </FormControl>
-                <FormControl isRequired>
+                 </FormControl>
+                {/*   <FormControl isRequired>
                   <FormLabel>External ID</FormLabel>
                   <Input name="externalID" value={form.externalID} onChange={handleChange} placeholder="External property ID" />
                 </FormControl> */}
 
-                {editingIndex == null && (
+                {/* {editingIndex == null && (
                   <FormControl>
                     <FormLabel>Cover Photo</FormLabel>
                     <UploadDropzone
@@ -287,7 +329,7 @@ const Profile = () => {
                         />
                       </Box>
                     )}
-                  </FormControl>)}
+                  </FormControl>)} */}
                 {editingIndex == null && (
                   <FormControl>
                     <FormLabel>Gallery Photos</FormLabel>
