@@ -17,7 +17,7 @@ export const updateProperty = async (formData) => {
             }
         });
         
-        console.log("updateProperty called with formData:", data);
+        // console.log("updateProperty called with formData:", data);
 
      
         

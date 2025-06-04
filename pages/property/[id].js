@@ -168,7 +168,7 @@ export default PropertyDetails;
 
 export async function getServerSideProps({ params: { id } }) {
   const data = await fetchApiByID(id);
-console.log("data",data.data);
+// console.log("data",data.data);
   return {
     props: {
       propertyDetails: data?.data,

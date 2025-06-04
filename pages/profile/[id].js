@@ -76,14 +76,11 @@ const Profile = () => {
     try {
       const propertyForSale = await fetchApiForSale();
       const propertyForRent = await fetchApiForRent();
-      console.log('Fetched properties for sale:', propertyForSale?.data);
       setProperties(() => [...propertyForSale?.data, ...propertyForRent?.data]);
-      console.log('Fetched properties:', propertyForSale?.data, propertyForRent?.data);
     } catch (error) {
       console.error('Error fetching properties:', error);
     }
   };
-  console.log("Properties", properties);
   const resetForm = () => {
     setForm({
       title: '',
@@ -129,14 +126,12 @@ const Profile = () => {
     // if (editingIndex !== null) {
     const updatedProperties = [...properties];
     updatedProperties[editingIndex] = form;
-    alert("Property updated successfully");
     insertProperty({ postId, ...form }).then((data) => {
       insertGallery(postId, form.galleryPhotos).then((galleryResponse) => {
         if (galleryResponse) {
           console.log("Gallery images inserted successfully");
         } else { console.error("Failed to insert gallery images"); }
       }).catch((galleryError) => { console.error("Error inserting gallery images:", galleryError); });
-      console.log("Property inserted:", data)
     }).catch((error) => {
       console.error("Error inserting property:", error);
     })
@@ -144,7 +139,6 @@ const Profile = () => {
     // } else {
     //   setProperties([...properties, form]);
     // }
-    console.log("Form submitted:", form);
     resetForm();
     onClose();
   };
@@ -160,17 +154,16 @@ const Profile = () => {
     if (editingIndex !== null) {
       const updatedProperties = [...properties];
       updatedProperties[editingIndex] = form;
-      alert("Property updated successfully");
       updateProperty({ postId: properties[editingIndex].id, ...form }).then((data) => {
         console.log("Property updated:", data);
       }).catch((error) => {
         console.error("Error updating property:", error);
       })
       setProperties(updatedProperties);
+          onClose();
     }
+  }
     const handleDelete = (index) => {
-      console.log("Deleting property at index:", index);
-      console.log("Current properties before deletion:", properties[index].id);
       deleteProperty(properties[index].id).then((response) => {
         console.log("Delete response:", response);
       }).catch((error) => {
@@ -179,7 +172,7 @@ const Profile = () => {
       const updated = properties.filter((_, i) => i !== index);
       setProperties(updated);
     };
-  }
+  
     function generateFourDigitNumber() {
       return Math.floor(Math.random() * 9000) + 1000;
     }
